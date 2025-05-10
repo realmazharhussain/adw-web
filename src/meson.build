@@ -9,9 +9,19 @@ adw_web_deps = [
   dependency('libadwaita-1', version: '>= 1.4'),
 ]
 
+blueprints = custom_target('blueprints',
+  input: files(
+    'gtk/help-overlay.blp',
+    'adw-web-window.blp',
+  ),
+  output: '.',
+  command: [find_program('blueprint-compiler'), 'batch-compile', '@OUTPUT@', '@CURRENT_SOURCE_DIR@', '@INPUT@'],
+)
+
 adw_web_sources += gnome.compile_resources('adw-web-resources',
   'adw-web.gresource.xml',
-  c_name: 'adw_web'
+  c_name: 'adw_web',
+  dependencies: blueprints
 )
 
 executable('adw-web', adw_web_sources,
