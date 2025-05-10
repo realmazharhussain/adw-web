@@ -1,0 +1,8 @@
+# List of source files containing translatable strings.
+# Please keep this file sorted alphabetically.
+data/com.example.adw_web.desktop.in
+data/com.example.adw_web.metainfo.xml.in
+data/com.example.adw_web.gschema.xml
+src/main.c
+src/adw-web-window.c
+src/adw-web-window.ui

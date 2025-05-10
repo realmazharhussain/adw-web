@@ -1,0 +1,10 @@
+[Desktop Entry]
+Name=adw-web
+Exec=adw-web
+Icon=com.example.adw_web
+Terminal=false
+Type=Application
+Categories=Utility;
+Keywords=GTK;
+StartupNotify=true
+DBusActivatable=true
