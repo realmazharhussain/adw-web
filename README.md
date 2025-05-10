@@ -1,3 +1,2 @@
-# adw-web
-
-A description of this project.
+> [!WARNING]
+> This is not a real project!
