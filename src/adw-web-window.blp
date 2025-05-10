@@ -30,6 +30,8 @@ template $AdwWebWindow: Adw.ApplicationWindow {
           styles [
             "suggested-action",
           ]
+
+          clicked => $select_folder_cb(template) not-swapped;
         };
       }
     };
