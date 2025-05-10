@@ -27,7 +27,8 @@ struct _AdwWebWindow
 	AdwApplicationWindow  parent_instance;
 
 	/* Template widgets */
-	GtkLabel            *label;
+	GtkStack            *stack;
+	GtkButton           *button;
 };
 
 G_DEFINE_FINAL_TYPE (AdwWebWindow, adw_web_window, ADW_TYPE_APPLICATION_WINDOW)
@@ -38,7 +39,8 @@ adw_web_window_class_init (AdwWebWindowClass *klass)
 	GtkWidgetClass *widget_class = GTK_WIDGET_CLASS (klass);
 
 	gtk_widget_class_set_template_from_resource (widget_class, "/com/example/adw_web/adw-web-window.ui");
-	gtk_widget_class_bind_template_child (widget_class, AdwWebWindow, label);
+	gtk_widget_class_bind_template_child (widget_class, AdwWebWindow, stack);
+	gtk_widget_class_bind_template_child (widget_class, AdwWebWindow, button);
 }
 
 static void

@@ -18,12 +18,20 @@ template $AdwWebWindow: Adw.ApplicationWindow {
       }
     }
 
-    content: Label label {
-      label: _("Hello, World!");
+    content: Stack stack {
+      StackPage {
+        name: "button";
+        title: _("Home");
+        child:  Button button {
+          label: _("Select a Folder …");
+          halign: center;
+          valign: center;
 
-      styles [
-        "title-1",
-      ]
+          styles [
+            "suggested-action",
+          ]
+        };
+      }
     };
   };
 }
