@@ -2,6 +2,7 @@
 <gresources>
   <gresource prefix="/com/example/adw_web">
     <file preprocess="xml-stripblanks">adw-web-window.ui</file>
+    <file preprocess="xml-stripblanks">adw-web-folder-item.ui</file>
     <file preprocess="xml-stripblanks">gtk/help-overlay.ui</file>
   </gresource>
 </gresources>

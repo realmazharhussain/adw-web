@@ -2,6 +2,7 @@ adw_web_sources = [
   'main.c',
   'adw-web-application.c',
   'adw-web-window.c',
+  'adw-web-folder-item.c',
 ]
 
 adw_web_deps = [
@@ -13,6 +14,7 @@ blueprints = custom_target('blueprints',
   input: files(
     'gtk/help-overlay.blp',
     'adw-web-window.blp',
+    'adw-web-folder-item.blp',
   ),
   output: '.',
   command: [find_program('blueprint-compiler'), 'batch-compile', '@OUTPUT@', '@CURRENT_SOURCE_DIR@', '@INPUT@'],

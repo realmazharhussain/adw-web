@@ -34,6 +34,26 @@ template $AdwWebWindow: Adw.ApplicationWindow {
           clicked => $select_folder_cb(template) not-swapped;
         };
       }
+
+      StackPage {
+        name: "files";
+        title: _("Files");
+
+        child: ScrolledWindow {
+          child: ListView folder_view {
+           factory: BuilderListItemFactory {
+             template ListItem {
+               child: $AdwWebFolderItem {
+                 file-info: bind template.item;
+               };
+             }
+           };
+           model: NoSelection {
+             model: DirectoryList directory_list {};
+           };
+          };
+        };
+      }
     };
   };
 }

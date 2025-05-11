@@ -21,6 +21,7 @@
 #include "config.h"
 
 #include "adw-web-window.h"
+#include "adw-web-folder-item.h"
 
 static void
 select_folder_cb (GtkButton*, gpointer);
@@ -38,6 +39,7 @@ struct _AdwWebWindow
 	/* Template widgets */
 	GtkStack            *stack;
 	GtkButton           *button;
+	GtkDirectoryList    *directory_list;
 };
 
 G_DEFINE_FINAL_TYPE (AdwWebWindow, adw_web_window, ADW_TYPE_APPLICATION_WINDOW)
@@ -47,9 +49,12 @@ adw_web_window_class_init (AdwWebWindowClass *klass)
 {
 	GtkWidgetClass *widget_class = GTK_WIDGET_CLASS (klass);
 
+	g_type_ensure (ADW_WEB_TYPE_FOLDER_ITEM);
+
 	gtk_widget_class_set_template_from_resource (widget_class, "/com/example/adw_web/adw-web-window.ui");
 	gtk_widget_class_bind_template_child (widget_class, AdwWebWindow, stack);
 	gtk_widget_class_bind_template_child (widget_class, AdwWebWindow, button);
+	gtk_widget_class_bind_template_child (widget_class, AdwWebWindow, directory_list);
 	gtk_widget_class_bind_template_callback (widget_class, select_folder_cb);
 }
 
@@ -73,24 +78,22 @@ select_folder_finish_cb (GObject 		*source_object,
 						 GAsyncResult 	*res,
 						 gpointer 		 user_data)
 {
-	AdwWebWindow *window = ADW_WEB_WINDOW (user_data);
+	AdwWebWindow *self = ADW_WEB_WINDOW (user_data);
 
 	GError *error = NULL;
-	GFile *folder = gtk_file_dialog_select_folder_finish (window->file_dialog, res, &error);
-	char *folder_path = NULL;
+	GFile *folder = gtk_file_dialog_select_folder_finish (self->file_dialog, res, &error);
 
 	if (error) {
 		if (!g_error_matches (error, gtk_dialog_error_quark(), GTK_DIALOG_ERROR_DISMISSED)) {
 			const gchar *domain = g_quark_to_string (error->domain);
-			g_print ("%s - %s!\n", domain, error->message);
+			g_warning ("%s - %s!\n", domain, error->message);
 		}
 		g_error_free (error);
 		return;
 	}
 
-	folder_path = g_file_get_path (folder);
-	g_print ("Folder selected: %s!\n", folder_path);
+	gtk_stack_set_visible_child_name (self->stack, "files");
+	gtk_directory_list_set_file (self->directory_list, folder);
 
-	g_free (folder_path);
 	g_object_unref (folder);
 }
