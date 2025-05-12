@@ -43,6 +43,9 @@ adw_web_window_set_current_folder (AdwWebWindow *self,
                                    GFile        *folder);
 
 static void
+adw_web_window_update_back_button (AdwWebWindow *self);
+
+static void
 select_folder_cb (GtkButton *button,
                   gpointer   user_data);
 

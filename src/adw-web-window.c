@@ -186,8 +186,19 @@ adw_web_window_set_current_folder (AdwWebWindow *self,
     self->current_folder = folder;
     g_object_notify_by_pspec (G_OBJECT (self), properties[PROP_CURRENT_FOLDER]);
 
-	gtk_widget_set_visible (GTK_WIDGET (self->back_button), folder != NULL);
-	gtk_widget_set_sensitive (GTK_WIDGET (self->back_button), !g_file_equal (folder, self->chosen_folder));
+	adw_web_window_update_back_button (self);
+}
+
+static void
+adw_web_window_update_back_button (AdwWebWindow *self)
+{
+	if (g_str_equal (gtk_stack_get_visible_child_name (self->stack), "web")) {
+		gtk_widget_set_visible (GTK_WIDGET (self->back_button), TRUE);
+		gtk_widget_set_sensitive (GTK_WIDGET (self->back_button), TRUE);
+	} else {
+		gtk_widget_set_visible (GTK_WIDGET (self->back_button), self->current_folder != NULL);
+		gtk_widget_set_sensitive (GTK_WIDGET (self->back_button), !g_file_equal (self->current_folder, self->chosen_folder));
+	}
 }
 
 static void
@@ -246,6 +257,7 @@ item_clicked_cb (GtkListView *list_view,
 		char *uri = g_file_get_uri (file);
 		webkit_web_view_load_uri (self->web_view, uri);
 		gtk_stack_set_visible_child_name (self->stack, "web");
+		adw_web_window_update_back_button (self);
 		g_free (uri);
 	}
 }
@@ -259,6 +271,7 @@ back_clicked_cb (GtkButton *button,
 
 	if (g_str_equal (gtk_stack_get_visible_child_name (self->stack), "web")) {
 		gtk_stack_set_visible_child_name (self->stack, "files");
+		adw_web_window_update_back_button (self);
 		return;
 	}
 
