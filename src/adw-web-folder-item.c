@@ -168,18 +168,22 @@ static void
 adw_web_folder_item_update_ui    (AdwWebFolderItem *self)
 {
     if (self->file_info != NULL) {
-        GFileType   file_type;
+        GFile      *file;
+        GFileInfo  *file_info;
         const char *icon_name;
         const char *file_name;
 
-        file_type = g_file_info_get_file_type (self->file_info);
-        file_name = g_file_info_get_name (self->file_info);
+        // existance of standard::file attribute is guarenteed by GtkDirectoryList
+        file = G_FILE (g_file_info_get_attribute_object (self->file_info, "standard::file"));
+        // `FileInfo`s created by GtkDirectoryList are not populated with some core standard::* attributes
+        file_info = g_file_query_info (file, "standard::", G_FILE_QUERY_INFO_NONE, NULL, NULL);
 
-        if (file_type == G_FILE_TYPE_DIRECTORY) {
-            icon_name = "inode-directory";
-        } else {
-            icon_name = "application-x-generic";
+        if (file_info == NULL) {
+            file_info = self->file_info;
         }
+
+        file_name = g_file_info_get_name (file_info);
+        icon_name = g_content_type_get_generic_icon_name (g_file_info_get_content_type (file_info));
 
         g_object_set (self,
                       "icon-name", icon_name,
