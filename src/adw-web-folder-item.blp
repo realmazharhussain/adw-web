@@ -5,7 +5,13 @@ template $AdwWebFolderItem : Adw.Bin {
   child: Box {
     orientation: horizontal;
 
-    Image image { pixel-size: 24; }
-    Label label {}
+    Image image {
+      icon-name: bind template.icon-name;
+      pixel-size: 24;
+    }
+
+    Label label {
+      label: bind template.label;
+    }
   };
 }

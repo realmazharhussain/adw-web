@@ -9,6 +9,13 @@ template $AdwWebWindow: Adw.ApplicationWindow {
   content: Adw.ToolbarView {
     [top]
     Adw.HeaderBar {
+      [start]
+      Button back_button {
+        icon-name: "go-previous-symbolic";
+        visible: false;
+        clicked => $back_clicked_cb(template) not-swapped;
+      }
+
       [end]
       MenuButton {
         primary: true;
@@ -41,16 +48,20 @@ template $AdwWebWindow: Adw.ApplicationWindow {
 
         child: ScrolledWindow {
           child: ListView folder_view {
-           factory: BuilderListItemFactory {
-             template ListItem {
-               child: $AdwWebFolderItem {
-                 file-info: bind template.item;
-               };
-             }
-           };
-           model: NoSelection {
-             model: DirectoryList directory_list {};
-           };
+            factory: BuilderListItemFactory {
+              template ListItem {
+                child: $AdwWebFolderItem {
+                  file-info: bind template.item;
+                };
+              }
+            };
+            model: NoSelection {
+              model: DirectoryList directory_list {
+                file: bind template.current-folder;
+              };
+            };
+
+            activate => $item_clicked_cb(template) not-swapped;
           };
         };
       }

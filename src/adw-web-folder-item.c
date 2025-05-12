@@ -25,8 +25,11 @@ struct _AdwWebFolderItem
 {
     AdwBin parent_instance;
 
-    /* Pirvate fields */
+    /* Properties */
     GFileInfo   *file_info;
+    gchar       *icon_name;
+    gchar       *label_text;
+
 
 	/* Template widgets */
 	GtkImage    *image;
@@ -35,6 +38,8 @@ struct _AdwWebFolderItem
 
 typedef enum {
     PROP_FILE_INFO = 1,
+    PROP_ICON_NAME,
+    PROP_LABEL,
     N_PROPERTIES
 } AdwWebFolderItemProperty;
 
@@ -66,6 +71,20 @@ adw_web_folder_item_class_init (AdwWebFolderItemClass *klass)
                              G_TYPE_FILE_INFO,
                              G_PARAM_CONSTRUCT | G_PARAM_READWRITE);
 
+    properties[PROP_ICON_NAME] =
+        g_param_spec_string ("icon-name",
+                             "Icon name",
+                             "Name of the icon",
+                             NULL,
+                             G_PARAM_CONSTRUCT | G_PARAM_READWRITE);
+
+    properties[PROP_LABEL] =
+        g_param_spec_string ("label",
+                             "Label",
+                             "Name of the file/directory",
+                             NULL,
+                             G_PARAM_CONSTRUCT | G_PARAM_READWRITE);
+
     g_object_class_install_properties (object_class,
                                        N_PROPERTIES,
                                        properties);
@@ -92,15 +111,23 @@ adw_web_folder_item_set_property (GObject      *object,
     switch ((AdwWebFolderItemProperty) property_id)
         {
         case PROP_FILE_INFO:
-            GFileInfo *new_value = NULL;
-
             g_clear_object (&self->file_info);
 
-            new_value = G_FILE_INFO (g_value_get_object (value));
-            if (new_value != NULL) {
-                self->file_info = g_object_ref (new_value);
+            self->file_info = g_value_get_object (value);
+            if (self->file_info != NULL) {
+                self->file_info = g_object_ref (self->file_info);
                 adw_web_folder_item_update_ui (self);
             }
+            break;
+
+        case PROP_ICON_NAME:
+            g_free (self->icon_name);
+            self->icon_name = g_value_dup_string (value);
+            break;
+
+        case PROP_LABEL:
+            g_free (self->label_text);
+            self->label_text = g_value_dup_string (value);
             break;
 
         default:
@@ -123,6 +150,14 @@ adw_web_folder_item_get_property (GObject    *object,
             g_value_set_object (value, self->file_info);
             break;
 
+        case PROP_ICON_NAME:
+            g_value_set_string (value, self->icon_name);
+            break;
+
+        case PROP_LABEL:
+            g_value_set_string (value, self->label_text);
+            break;
+
         default:
             G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
             break;
@@ -132,17 +167,23 @@ adw_web_folder_item_get_property (GObject    *object,
 static void
 adw_web_folder_item_update_ui    (AdwWebFolderItem *self)
 {
-    GFileType   file_type;
-    const char *file_name;
+    if (self->file_info != NULL) {
+        GFileType   file_type;
+        const char *icon_name;
+        const char *file_name;
 
-    file_type = g_file_info_get_file_type (self->file_info);
-    file_name = g_file_info_get_name (self->file_info);
+        file_type = g_file_info_get_file_type (self->file_info);
+        file_name = g_file_info_get_name (self->file_info);
 
-    if (file_type == G_FILE_TYPE_DIRECTORY) {
-        gtk_image_set_from_icon_name (self->image, "inode-directory");
-    } else {
-        gtk_image_set_from_icon_name (self->image, "application-x-generic");
+        if (file_type == G_FILE_TYPE_DIRECTORY) {
+            icon_name = "inode-directory";
+        } else {
+            icon_name = "application-x-generic";
+        }
+
+        g_object_set (self,
+                      "icon-name", icon_name,
+                      "label", file_name,
+                      NULL);
     }
-
-    gtk_label_set_label (self->label, file_name);
 }

@@ -20,6 +20,8 @@
 
 #pragma once
 
+#include "adw-web-folder-item.h"
+
 static void
 adw_web_folder_item_set_property (GObject      *object,
                                   guint         property_id,
