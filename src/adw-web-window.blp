@@ -1,5 +1,6 @@
 using Gtk 4.0;
 using Adw 1;
+using WebKit 6.0;
 
 template $AdwWebWindow: Adw.ApplicationWindow {
   title: _("Adw-web");
@@ -64,6 +65,12 @@ template $AdwWebWindow: Adw.ApplicationWindow {
             activate => $item_clicked_cb(template) not-swapped;
           };
         };
+      }
+
+      StackPage {
+        name: "web";
+        title: _("Web");
+        child:  WebKit.WebView web_view {};
       }
     };
   };

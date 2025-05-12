@@ -8,6 +8,7 @@ adw_web_sources = [
 adw_web_deps = [
   dependency('gtk4'),
   dependency('libadwaita-1', version: '>= 1.4'),
+  dependency('webkitgtk-6.0')
 ]
 
 blueprints = custom_target('blueprints',

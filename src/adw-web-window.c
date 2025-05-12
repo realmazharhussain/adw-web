@@ -20,6 +20,7 @@
 
 #include "config.h"
 #include <adwaita.h>
+#include <webkit/webkit.h>
 
 #include "adw-web-window.h"
 #include "adw-web-window-private.h"
@@ -39,6 +40,7 @@ struct _AdwWebWindow
 	GtkButton           *back_button;
 	GtkButton           *button;
 	GtkDirectoryList    *directory_list;
+	WebKitWebView       *web_view;
 };
 
 typedef enum {
@@ -58,6 +60,7 @@ adw_web_window_class_init (AdwWebWindowClass *klass)
 	GtkWidgetClass *widget_class = GTK_WIDGET_CLASS (klass);
 
 	g_type_ensure (ADW_WEB_TYPE_FOLDER_ITEM);
+	g_type_ensure (WEBKIT_TYPE_WEB_VIEW);
 
 	object_class->set_property = adw_web_window_set_property;
 	object_class->get_property = adw_web_window_get_property;
@@ -85,6 +88,7 @@ adw_web_window_class_init (AdwWebWindowClass *klass)
 	gtk_widget_class_bind_template_child (widget_class, AdwWebWindow, back_button);
 	gtk_widget_class_bind_template_child (widget_class, AdwWebWindow, button);
 	gtk_widget_class_bind_template_child (widget_class, AdwWebWindow, directory_list);
+	gtk_widget_class_bind_template_child (widget_class, AdwWebWindow, web_view);
 	gtk_widget_class_bind_template_callback (widget_class, select_folder_cb);
 	gtk_widget_class_bind_template_callback (widget_class, item_clicked_cb);
 	gtk_widget_class_bind_template_callback (widget_class, back_clicked_cb);
@@ -229,14 +233,20 @@ item_clicked_cb (GtkListView *list_view,
 	AdwWebWindow *self;
 	GListModel   *model;
 	GFileInfo    *file_info;
+	GFile 		 *file;
 
 	self = ADW_WEB_WINDOW (user_data);
 	model = G_LIST_MODEL (gtk_list_view_get_model (list_view));
 	file_info = G_FILE_INFO (g_list_model_get_item (model, position));
+	file = G_FILE (g_file_info_get_attribute_object (file_info, "standard::file"));
 
 	if (g_file_info_get_file_type (file_info) == G_FILE_TYPE_DIRECTORY) {
-		GFile *folder = G_FILE (g_file_info_get_attribute_object (file_info, "standard::file"));
-		adw_web_window_set_current_folder (self, folder);
+		adw_web_window_set_current_folder (self, file);
+	} else if (g_str_has_suffix (g_file_info_get_name (file_info), ".html")) {
+		char *uri = g_file_get_uri (file);
+		webkit_web_view_load_uri (self->web_view, uri);
+		gtk_stack_set_visible_child_name (self->stack, "web");
+		g_free (uri);
 	}
 }
 
@@ -244,10 +254,14 @@ static void
 back_clicked_cb (GtkButton *button,
                  gpointer   user_data)
 {
-	AdwWebWindow *self;
 	GFile *current, *previous;
+	AdwWebWindow *self = ADW_WEB_WINDOW (user_data);
 
-	self = ADW_WEB_WINDOW (user_data);
+	if (g_str_equal (gtk_stack_get_visible_child_name (self->stack), "web")) {
+		gtk_stack_set_visible_child_name (self->stack, "files");
+		return;
+	}
+
 	g_object_get (self, "current-folder", &current, NULL);
 	previous = g_file_get_parent (current);
 
